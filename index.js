@@ -17,7 +17,7 @@ var PACKAGE_KEY = 'min-dot',
                 'm' + str + '\u001b[' + colors[type][1] + 'm';
         },
         print: function(str) {
-            process.stdout.write(str);
+            console.log(str);
         }
     };
 
@@ -148,34 +148,35 @@ function DotMatrix(total_tests, terminal_width) {
 
     return {
         init: function() {
+            console.log('\u001b[1m' + 'Tests started...' + '\u001b[0m');
             display.print('\u001b[?25l' + Array(lines + 1).join('\n'));
-            draw();
         },
         pass: function() {
             tests.push(true);
             passes++;
-            draw();
         },
         fail: function() {
             tests.push(false);
             fails++;
-            draw();
         },
         close: function(cov) {
-            var last_line = '\u001b[0F';
+            process.nextTick(function () {
+                draw();
+                var last_line = '\u001b[0F';
 
-            last_line += display.bold(passes) + display.color('passed', 'pending');
-            last_line += '  ';
-            last_line += display.bold(fails) + display.color('failed', 'pending');
-            last_line += '  ';
-            if(cov.hits === 0 || cov.soc === 0){
-                last_line += display.color('no coverage', 'pending');
-            } else {
-                last_line += display.bold(Math.round(cov.hits/cov.soc*100) + '%') + display.color('coverage', 'pending');
-            }
-            last_line += '\n';
+                last_line += display.bold(passes) + display.color('passed', 'pending');
+                last_line += '  ';
+                last_line += display.bold(fails) + display.color('failed', 'pending');
+                last_line += '  ';
+                if(cov.hits === 0 || cov.soc === 0){
+                    last_line += display.color('no coverage', 'pending');
+                } else {
+                    last_line += display.bold(Math.round(cov.hits/cov.soc*100) + '%') + display.color('coverage', 'pending');
+                }
+                last_line += '\n';
+                display.print(last_line);
 
-            display.print(last_line);
+            })
         }
     };
 }
